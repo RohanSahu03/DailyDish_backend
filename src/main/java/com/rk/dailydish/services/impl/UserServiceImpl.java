@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(this.encoder.encode(user.getPassword()));
 		
 		Optional<Role> byId = this.roleRepo.findById(AppConstant.NORMAL_USER);
-		Role role = byId.get();System.out.println("role"+role);
+		Role role = byId.get();
 		user.getRole().add(role);
 		user.setCreatedAt(LocalDateTime.now());
 		User newUser = this.userrepo.save(user);

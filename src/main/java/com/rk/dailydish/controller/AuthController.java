@@ -43,7 +43,7 @@ public class AuthController {
 	
 
     @PostMapping("/login")
-    public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest request) {
+    public ResponseEntity<JwtAuthResponse> createToken(@Valid @RequestBody JwtAuthRequest request) {
         System.out.println("User phone: " + request.getPhone());
 
         // Convert phone (long) to String for authentication
@@ -67,7 +67,6 @@ public class AuthController {
 
             Authentication authenticate = authenticationManager.authenticate(authenticationToken);
 
-          
         }
         catch (DisabledException e) {
             throw new RuntimeException("User is disabled!", e);
