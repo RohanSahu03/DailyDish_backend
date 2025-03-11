@@ -6,7 +6,9 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.rk.dailydish.dto.ProductDto;
 import com.rk.dailydish.dto.ProductUpdateDto;
@@ -14,6 +16,7 @@ import com.rk.dailydish.entity.Product;
 import com.rk.dailydish.exceptions.InternalServerException;
 import com.rk.dailydish.exceptions.ResourceNotFoundException;
 import com.rk.dailydish.repository.ProductRepo;
+import com.rk.dailydish.services.FileService;
 import com.rk.dailydish.services.ProductService;
 
 @Service
@@ -24,13 +27,23 @@ public class ProductServiceImpl implements ProductService {
 	
 	@Autowired
 	ProductRepo productRepo;
+	
+	@Autowired
+	FileService fileService;
+	
+	@Value("${project.image}")
+	private String path;
+	
 
 	@Override
-	public ProductDto saveProduct(ProductDto product) {
+	public ProductDto saveProduct(ProductDto product,String filename) {
 		// TODO Auto-generated method stub
 		
 		try {
 			Product produtmap = this.modelmapper.map(product, Product.class);
+			if(filename != null) {
+				produtmap.setImage(filename);
+			}
 			
 			Product savedProduct = this.productRepo.save(produtmap);
 			
@@ -112,6 +125,24 @@ public class ProductServiceImpl implements ProductService {
 		Product updatedProduct = this.productRepo.save(foundproduct);
 		
 		return this.modelmapper.map(updatedProduct, ProductUpdateDto.class);
+	}
+
+	@Override
+	public String updateImage(MultipartFile file, int id) {
+		// TODO Auto-generated method stub
+		
+		Product product = this.productRepo.findById(id).orElseThrow(()->new ResourceNotFoundException("Product Not found with Id "+id));
+		
+		String filename=null;
+		if(product != null) {
+			 filename = this.fileService.uploadImage(path, file);
+		}
+		
+		product.setImage(filename);
+		
+		Product save = this.productRepo.save(product);
+		
+		return filename;
 	}
 
 }

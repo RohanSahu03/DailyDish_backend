@@ -3,6 +3,7 @@ package com.rk.dailydish.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,10 +13,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rk.dailydish.dto.ProductDto;
 import com.rk.dailydish.dto.ProductUpdateDto;
+import com.rk.dailydish.services.FileService;
 import com.rk.dailydish.services.ProductService;
 
 import jakarta.validation.Valid;
@@ -28,9 +35,34 @@ public class ProductController {
 	private ProductService productService;
 	
 	
+	@Autowired
+	private FileService fileService;
+	
+	//to convert into Json from String
+	@Autowired
+	private ObjectMapper objectMapper;
+	
+	@Value("${project.image}")
+	private String path;
+	
 	@PostMapping("/")
-	public ResponseEntity<ProductDto> saveProduct(@Valid @RequestBody ProductDto product) {
-		ProductDto saveProduct = this.productService.saveProduct(product);
+	public ResponseEntity<ProductDto> saveProduct(@Valid @RequestParam("image") MultipartFile file,@RequestParam("productData") String product) {
+		
+		ProductDto productDto = null;
+		try {
+			//converting string to JSON
+			productDto = objectMapper.readValue(product, ProductDto.class);
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String filename = this.fileService.uploadImage(path, file);
+		
+		ProductDto saveProduct = this.productService.saveProduct(productDto,filename);
 		return new ResponseEntity<ProductDto>(saveProduct,HttpStatus.OK);
 	}
 	
@@ -59,6 +91,13 @@ public class ProductController {
 		ProductUpdateDto updateProduct = this.productService.updateProduct(product, id);
 		
 		return new ResponseEntity<ProductUpdateDto>(updateProduct,HttpStatus.OK);
+	}
+	
+	@PutMapping("/image/{id}")
+	public ResponseEntity<String> updateProduct(@Valid @RequestParam("image") MultipartFile file,@PathVariable int id){
+		String updateImage = this.productService.updateImage(file, id);
+		
+		return new ResponseEntity<String>(updateImage,HttpStatus.OK);
 	}
 	
 }
