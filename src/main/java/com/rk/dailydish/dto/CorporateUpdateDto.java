@@ -1,7 +1,7 @@
 package com.rk.dailydish.dto;
 
 import java.time.LocalDateTime;
-import jakarta.validation.constraints.NotEmpty;
+
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.NoArgsConstructor;
