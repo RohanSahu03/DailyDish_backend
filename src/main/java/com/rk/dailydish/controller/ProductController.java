@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rk.dailydish.dto.ProductDto;
 import com.rk.dailydish.dto.ProductUpdateDto;
+import com.rk.dailydish.exceptions.ResourceNotFoundException;
 import com.rk.dailydish.services.FileService;
 import com.rk.dailydish.services.ProductService;
 
@@ -59,8 +60,12 @@ public class ProductController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		String filename = this.fileService.uploadImage(path, file);
+		String filename=null;
+		try {
+			filename = this.fileService.uploadImage(path, file);
+		}catch(Exception e) {
+			throw new ResourceNotFoundException("File Already Exist");
+		}
 		
 		ProductDto saveProduct = this.productService.saveProduct(productDto,filename);
 		return new ResponseEntity<ProductDto>(saveProduct,HttpStatus.OK);

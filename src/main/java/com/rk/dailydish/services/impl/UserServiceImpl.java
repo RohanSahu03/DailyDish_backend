@@ -46,7 +46,14 @@ public class UserServiceImpl implements UserService {
 		
 		User user = this.dtoToUser(userDto);
 		
-		user.setPassword(this.encoder.encode(user.getPassword()));
+		System.out.println("dfdf"+user.getName()+user.getPhone()+user.getAddress());
+		if (userDto.getPassword() == null || userDto.getPassword().isEmpty()) {
+		    throw new IllegalArgumentException("Password cannot be null or empty");
+		}
+		
+		String encodedPassword = encoder.encode(user.getPassword());
+		user.setPassword(encodedPassword);
+//		user.setPassword(this.encoder.encode(user.getPassword()));
 		
 		Optional<Role> byId = this.roleRepo.findById(AppConstant.NORMAL_USER);
 		Role role = byId.get();

@@ -81,6 +81,7 @@ public class AuthController {
     @PostMapping("/register")
 	public ResponseEntity<UserDto>  registerUser(@Valid @RequestBody UserDto userDto){
 		UserDto createdUserDto = this.userService.registerUser(userDto);
+	System.out.println("hiii"+createdUserDto.getPassword());
 		return new ResponseEntity<UserDto>(createdUserDto, HttpStatus.CREATED);
 //	return new ResponseEntity<>(new ApiResponse("user created",true), HttpStatus.CREATED);
 		
