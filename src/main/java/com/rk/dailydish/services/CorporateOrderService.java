@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.rk.dailydish.payload.OrderRequest;
 import com.rk.dailydish.payload.OrderResponse;
+import com.rk.dailydish.payload.OrderResponseWithPagination;
 
 
 public interface CorporateOrderService {
@@ -13,5 +14,5 @@ public interface CorporateOrderService {
 	
 	List<OrderResponse> getOrdersByUser(int userId);
 	 
-	List<OrderResponse> getAllOrders();
+	OrderResponseWithPagination getAllOrders(Integer pageNumber,Integer pageSize);
 }

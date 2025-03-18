@@ -11,7 +11,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "corporate_orders")
 @Data
-@Getter
 @Setter
 public class CorporateOrders {
 
@@ -52,5 +51,5 @@ public class CorporateOrders {
     private String slotTime;
     
     @Column(nullable = false)
-    private long phone;
+    private String phone;
 }

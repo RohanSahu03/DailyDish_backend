@@ -11,6 +11,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.rk.dailydish.exceptions.InternalServerException;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
@@ -31,53 +33,65 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		String requestURI = request.getRequestURI();
 
+		 if (requestURI.equals("/api/auth/register") || requestURI.equals("/api/auth/login")) {
+		        filterChain.doFilter(request, response);
+		        return;
+		    }
+	    
         String requestHeader = request.getHeader("Authorization");
-        //Bearer 2352345235sdfrsfgsdfsdf
-//        logger.info(" Header :  {}", requestHeader);
-        String username = null;
-        String token = null;
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-            //looking good
-            token = requestHeader.substring(7);
-            try {
-
-                username = this.jwtHelper.getUsernameFromToken(token);
-               
-
-            } catch (IllegalArgumentException e) {
+		String username = null;
+		String token = null;
+		
+		if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+			// looking good
+				token = requestHeader.substring(7);
+			try {
+					username = this.jwtHelper.getUsernameFromToken(token);
+				} 
+			catch (IllegalArgumentException e) 
+			{
 //                logger.info("Illegal Argument while fetching the username !!");
-                e.printStackTrace();
-            } catch (ExpiredJwtException e) {
-//                logger.info("Given jwt token is expired !!");
-                e.printStackTrace();
-            } catch (MalformedJwtException e) {
-//                logger.info("Some changed has done in token !! Invalid Token");
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
+				throw new InternalServerException("Illegal Argument while fetching the username !!");
+			} 
+			catch (ExpiredJwtException e) 
+			{
+              throw new InternalServerException("Authentication token is expired..!!");
+			} 
+			catch (MalformedJwtException e) 
+			{
+				System.out.println("Exception caught: " + e.getMessage());
+				  throw new InternalServerException("Some changed has done in token !! Invalid Token");
+			} 
+			catch (Exception e) 
+			{
+				throw new InternalServerException("Something went wrong !!");
 
-            }
+			}
 
+		} 
+		else 
+		{
+            throw new InternalServerException("Invalid Header Value!!");
 
-        } else {
-            logger.info("Invalid Header Value !! ");
-        }
-
+		}
 
         //
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
 
             //fetch user detail from username
-        	System.out.println("hii"+username);
         	
             UserDetails userDetails = this.userDetailService.loadUserByUsername(username);
             Boolean validateToken =  false;
             try {
                 validateToken = this.jwtHelper.validateToken(token, userDetails);
-            } catch (Exception e) {
-                logger.error("Token validation failed!", e);
+            	} 
+            catch (Exception e) 
+            {
+                throw new InternalServerException("Token validation failed !!");
+
             }
             if (validateToken) {
 
@@ -87,8 +101,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
 
-            } else {
-                logger.info("Validation fails !!");
+            } 
+            else 
+            {
+                throw new InternalServerException("Token validation failed !!");
             }
 
 

@@ -28,7 +28,7 @@ public class OrderResponse {
     
     private String paymentStatus;
     
-    private long phone;
+    private String phone;
 
     private double deliveryCharge;
     

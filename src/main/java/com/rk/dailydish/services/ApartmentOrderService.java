@@ -3,6 +3,7 @@ package com.rk.dailydish.services;
 import com.rk.dailydish.payload.OrderRequest;
 import java.util.List;
 import com.rk.dailydish.payload.OrderResponse;
+import com.rk.dailydish.payload.OrderResponseWithPagination;
 
 public interface ApartmentOrderService {
 
@@ -11,7 +12,7 @@ public interface ApartmentOrderService {
 	
 	List<OrderResponse> getOrdersByUser(int userId);
 	 
-	List<OrderResponse> getAllOrders();
+	OrderResponseWithPagination getAllOrders(Integer pageNumber,Integer pageSize);
 	
 //	void cancelOrder(int orderId)
 }

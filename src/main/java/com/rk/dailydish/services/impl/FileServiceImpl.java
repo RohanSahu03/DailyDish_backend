@@ -31,6 +31,12 @@ public class FileServiceImpl implements FileService {
 		if (!f.exists()) {
 			f.mkdir();
 		}
+		
+	    // Check if file already exists
+	    File existingFile = new File(filePath);
+	    if (existingFile.exists()) {
+	        return filename; // Return the existing filename without overwriting
+	    }
 
 		// file copy
 		try {

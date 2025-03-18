@@ -13,22 +13,24 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class UserDto {
 
 	private Long id;
-	@NotEmpty(groups = OnRegister.class)
+	@NotEmpty(groups = {OnRegister.class})
 	private String name;
-
+//	groups = {OnRegister.class, OnLogin.class}
 	
-    @Min(value=6000000000L , message = "Phone number must start with 6, 7, 8, or 9 and be 10 digits long.",groups = {OnRegister.class, OnLogin.class}) // Indian mobile numbers start from 6, 7, 8, or 9
-    @Max(value=9999999999L ,  message = "Phone number must start with 6, 7, 8, or 9 and be 10 digits long.",groups = {OnRegister.class, OnLogin.class}) // Ensuring it's a 10-digit number
-    @Digits(integer = 10, fraction = 0, message = "Phone number must start with 6, 7, 8, or 9 and be 10 digits long.",groups = {OnRegister.class, OnLogin.class})
-	private Long phone;
+	@NotEmpty(groups = {OnRegister.class, OnLogin.class})
+    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Phone number must start with 6, 7, 8, or 9 and be exactly 10 digits long.",groups = {OnRegister.class, OnLogin.class})
+	private String phone;
 	
 	@NotEmpty(groups = {OnRegister.class, OnLogin.class})
 	@Pattern(regexp="^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",message = "Password must consist of uppercase,lowercase,number and specialcharacter !!",groups = {OnRegister.class, OnLogin.class})

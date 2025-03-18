@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Data
+@Setter
+@Getter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,7 +19,7 @@ import lombok.ToString;
 public class JwtAuthRequest {
 
 	
-	private Long phone;
+	private String phone;
 	
 	private String password;
 	

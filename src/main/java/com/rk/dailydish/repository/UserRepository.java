@@ -10,5 +10,5 @@ import com.rk.dailydish.entity.User;
 @Repository
 public interface UserRepository extends CrudRepository<User, Long>{
 
-	  Optional<User> findByPhone(long phone);
+	  Optional<User> findByPhone(String phone);
 }

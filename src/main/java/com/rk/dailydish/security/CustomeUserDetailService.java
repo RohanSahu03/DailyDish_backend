@@ -18,9 +18,9 @@ public class CustomeUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String phoneString) throws UsernameNotFoundException {
-        long phone;
+        String phone;
         try {
-            phone = Long.parseLong(phoneString);
+            phone = phoneString;
         } catch (NumberFormatException e) {
             throw new UsernameNotFoundException("Invalid phone number format");
         }

@@ -1,5 +1,8 @@
 package com.rk.dailydish.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +12,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +27,7 @@ import com.rk.dailydish.security.JwtHelper;
 import com.rk.dailydish.services.UserService;
 
 import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -80,8 +85,8 @@ public class AuthController {
     
     @PostMapping("/register")
 	public ResponseEntity<UserDto>  registerUser(@Valid @RequestBody UserDto userDto){
+    	
 		UserDto createdUserDto = this.userService.registerUser(userDto);
-	System.out.println("hiii"+createdUserDto.getPassword());
 		return new ResponseEntity<UserDto>(createdUserDto, HttpStatus.CREATED);
 //	return new ResponseEntity<>(new ApiResponse("user created",true), HttpStatus.CREATED);
 		

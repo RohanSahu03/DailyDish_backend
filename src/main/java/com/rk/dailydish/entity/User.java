@@ -47,7 +47,7 @@ public class User implements UserDetails{
 	private String address;
 
 	@Column(nullable = false, unique = true)
-	private long phone;
+	private String phone;
 
 	@Column(nullable = false)
 	private String password;

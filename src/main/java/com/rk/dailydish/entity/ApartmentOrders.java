@@ -48,5 +48,5 @@ public class ApartmentOrders {
     private String slotTime;
     
     @Column(nullable = false)
-    private long phone;
+    private String phone;
 }

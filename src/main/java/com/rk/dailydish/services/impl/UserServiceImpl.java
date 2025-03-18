@@ -40,16 +40,24 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	PasswordEncoder encoder;
+	
 	@Override
 	public UserDto registerUser(UserDto userDto) {
 		// TODO Auto-generated method stub
 		
 		User user = this.dtoToUser(userDto);
 		
+		 Optional<User> existingPhoneUser = userrepo.findByPhone(user.getPhone());
+		    if (existingPhoneUser.isPresent()) {
+		        throw new UserAlreadyExistException("User with this phone number already exists!");
+		    }
+		
 		System.out.println("dfdf"+user.getName()+user.getPhone()+user.getAddress());
 		if (userDto.getPassword() == null || userDto.getPassword().isEmpty()) {
 		    throw new IllegalArgumentException("Password cannot be null or empty");
 		}
+		
+
 		
 		String encodedPassword = encoder.encode(user.getPassword());
 		user.setPassword(encodedPassword);
@@ -112,13 +120,10 @@ public class UserServiceImpl implements UserService {
 		// TODO Auto-generated method stub
 		User user = this.dtoToUser(userdto);
 		String name = user.getName();
-		Long phone = user.getPhone();
+		String phone = user.getPhone();
 		String address = user.getAddress();
 		
-		
-		
-		
-		
+	
 		return userdto;
 	}
 

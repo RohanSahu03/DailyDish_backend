@@ -1,6 +1,7 @@
 package com.rk.dailydish.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,10 +23,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rk.dailydish.dto.ProductDto;
 import com.rk.dailydish.dto.ProductUpdateDto;
+import com.rk.dailydish.exceptions.InternalServerException;
 import com.rk.dailydish.exceptions.ResourceNotFoundException;
 import com.rk.dailydish.services.FileService;
 import com.rk.dailydish.services.ProductService;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 
 @RestController
@@ -58,8 +61,10 @@ public class ProductController {
 			e.printStackTrace();
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			 throw new InternalServerException("Invalid JSON format: " + e.getMessage());
 		}
+		
+	
 		String filename=null;
 		try {
 			filename = this.fileService.uploadImage(path, file);

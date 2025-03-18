@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -16,10 +19,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rk.dailydish.entity.ApartmentOrders;
 import com.rk.dailydish.entity.Product;
 import com.rk.dailydish.entity.User;
+import com.rk.dailydish.exceptions.InsufficientStock;
 import com.rk.dailydish.exceptions.ResourceNotFoundException;
 import com.rk.dailydish.payload.OrderItem;
 import com.rk.dailydish.payload.OrderRequest;
 import com.rk.dailydish.payload.OrderResponse;
+import com.rk.dailydish.payload.OrderResponseWithPagination;
 import com.rk.dailydish.repository.ApartmentOrderRepo;
 import com.rk.dailydish.repository.ProductRepo;
 import com.rk.dailydish.repository.UserRepository;
@@ -44,12 +49,12 @@ private ProductRepo productRepository;
 public OrderResponse createOrder(OrderRequest orderRequest) {
     User user = userRepository.findById((long) orderRequest.getUserId())
             .orElseThrow(() -> new RuntimeException("User not found"));
-    long phone = user.getPhone();
+    String phone = user.getPhone();
 
     ApartmentOrders order = new ApartmentOrders();
     order.setUser(user);
-    order.setSlotTime(orderRequest.getSlotTime());
     order.setPhone(phone);
+    order.setSlotTime(orderRequest.getSlotTime());
     order.setApartmentName(orderRequest.getApartmentName());
     order.setLocation(orderRequest.getLocation());
     order.setDeliveryType(orderRequest.getDeliveryType());
@@ -63,6 +68,17 @@ public OrderResponse createOrder(OrderRequest orderRequest) {
     
         Product product = productRepository.findById(item.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
+        
+        // Reduce the remaining stock
+        if (product.getRemainingStock() < item.getQuantity()) {
+            throw new InsufficientStock("Insufficient stock for product: " + product.getName());
+        }
+     
+        product.setRemainingStock(product.getRemainingStock() - item.getQuantity());
+
+        // Save the updated product stock in the database
+        productRepository.save(product);
+     
         return new OrderItem(product.getId(), product.getName(), product.getDescription(),
                 product.getCategory(), product.getImage(), product.getPrice(), product.getUnit(), item.getQuantity());
     }).collect(Collectors.toList()));
@@ -95,9 +111,24 @@ public List<OrderResponse> getOrdersByUser(int userId) {
 
 
 @Override
-public List<OrderResponse> getAllOrders() {
-    List<ApartmentOrders> orders = apartmentOrderRepo.findAll();
-    return orders.stream().map(this::mapToResponse).collect(Collectors.toList());
+public OrderResponseWithPagination getAllOrders(Integer pageNumber,Integer pageSize) {
+	
+	Pageable p = PageRequest.of(pageNumber, pageSize);
+	
+Page<ApartmentOrders> pageOrders = apartmentOrderRepo.findAll(p);
+
+    List<OrderResponse> orders = pageOrders.stream().map(this::mapToResponse).collect(Collectors.toList());
+    
+    OrderResponseWithPagination orderResponseWithPagination = new OrderResponseWithPagination();
+    
+    orderResponseWithPagination.setContent(orders);
+    orderResponseWithPagination.setPageNumber(pageOrders.getNumber());
+    orderResponseWithPagination.setPageSize(pageOrders.getSize());
+    orderResponseWithPagination.setTotalElements(pageOrders.getTotalElements());
+    orderResponseWithPagination.setTotalPages(pageOrders.getTotalPages());
+    orderResponseWithPagination.setLastPage(pageOrders.isLast());
+    
+    return orderResponseWithPagination;
 }
 
 //cancel order
